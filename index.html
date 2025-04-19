@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>常见原研药查询</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .hover-highlight:hover {
+      background-color: #f0f0f0;
+    }
+    .table th, .table td {
+      border: 1px solid #e2e8f0;
+    }
+    .table th {
+      text-align: left;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+  <div class="container mx-auto p-4">
+    <h1 class="text-4xl font-bold text-center text-indigo-600 mb-8">常见原研药查询</h1>
+    <input type="text" id="search" placeholder="搜索药品通用名或品牌名" class="w-full mb-4 p-2 border border-gray-300 rounded">
+
+    <div id="content"></div>
+  </div>
+
+  <script>
+    const themeColor = '#4a40f5';
+
+    // 读取JSON数据并渲染网页内容
+    fetch('data.json')
+      .then(response => response.json())
+      .then(data => {
+        renderContent(data.categories);
+      });
+
+    function renderContent(categories) {
+      const content = document.getElementById('content');
+      content.innerHTML = '';
+
+      categories.forEach(category => {
+        const section = document.createElement('div');
+        section.className = 'mb-8';
+
+        const header = document.createElement('div');
+        header.className = 'bg-indigo-600 text-white p-4 rounded-t';
+        header.innerHTML = `<h2 class="text-2xl font-bold">${category.name}</h2>
+                            <p>${category.description}</p>`;
+        section.appendChild(header);
+
+        const table = document.createElement('table');
+        table.className = 'min-w-full bg-white rounded-b shadow-md table';
+
+        const thead = document.createElement('thead');
+        thead.className = 'bg-gray-200';
+        thead.innerHTML = `<tr>
+                            <th class="py-2 px-4">药品通用名</th>
+                            <th class="py-2 px-4">原研品牌</th>
+                            <th class="py-2 px-4">有效期</th>
+                          </tr>`;
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        category.medicines.forEach((medicine, index) => {
+          const row = document.createElement('tr');
+          row.className = `hover-highlight ${index % 2 === 0 ? 'bg-gray-50' : ''}`;
+          row.innerHTML = `<td class="py-2 px-4">${medicine.generic_name}</td>
+                           <td class="py-2 px-4">${medicine.brand_name}</td>
+                           <td class="py-2 px-4">${medicine.expiry}个月</td>`;
+          tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+
+        section.appendChild(table);
+        content.appendChild(section);
+      });
+    }
+
+    // 搜索功能
+    document.getElementById('search').addEventListener('input', function() {
+      const query = this.value.toLowerCase();
+      fetch('data.json')
+        .then(response => response.json())
+        .then(data => {
+          if (query) {
+            const filteredCategories = data.categories.map(category => {
+              const filteredMedicines = category.medicines.filter(medicine =>
+                medicine.generic_name.toLowerCase().includes(query) ||
+                medicine.brand_name.toLowerCase().includes(query)
+              );
+              return { ...category, medicines: filteredMedicines };
+            }).filter(category => category.medicines.length > 0);
+            renderContent(filteredCategories);
+          } else {
+            renderContent(data.categories);
+          }
+        });
+    });
+  </script>
+</body>
+</html>
