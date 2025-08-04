@@ -44,6 +44,13 @@
       ]
     },
     {
+      "name": "降尿酸类",
+      "description": "用于高尿酸血症等",
+      "medicines": [
+        { "generic_name": "非布司他片", "brand_name": "菲布力", "expiry": 36 }
+      ]
+    },
+    {
       "name": "抗过敏类",
       "description": "用于缓解由过敏引起的症状，如鼻塞、皮疹等",
       "medicines": [
